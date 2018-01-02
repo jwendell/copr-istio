@@ -1,1 +1,3 @@
-TAG=jwendell1
+export TAG=jwendell1
+export BUILDINFO=buildinfo
+export STATIC=1

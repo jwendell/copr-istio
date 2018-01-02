@@ -30,14 +30,13 @@
 %endif
 
 # this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
-%global git_bump         0
-%global git_commit       22a8d0c7915f6fe49250ac3e23d8a0ea0b327848
+%global git_bump         1
+%global git_commit       87aa56e286b544c2380390ac77b2bd4a891a5752
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
 %global provider_tld    com
-# TODO: Should be istio
-%global project         costinm
+%global project         istio
 %global repo            istio
 # https://github.com/istio/istio
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
@@ -54,13 +53,16 @@ URL:            https://%{provider_prefix}
 # TODO: Change to a release version
 Source0:        https://%{provider_prefix}/archive/%{git_commit}/%{repo}-%{git_commit}.zip
 Source1:        istiorc
-Source2:        vendor.zip
-Patch0:         typo-mixc.patch
+Source2:        vendor.tar.bz2
+Source3:        buildinfo
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
 BuildRequires:  %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
+
+BuildRequires: git
+BuildRequires: hostname
 
 %description
 Istio is an open platform that provides a uniform way to connect, manage
@@ -615,11 +617,13 @@ providing packages with %{import_path} prefix.
 
 %prep
 %autosetup -n %{name}-%{git_commit}
+
 cp %{SOURCE1} .istiorc
-unzip -q %{SOURCE2}
+tar xfj %{SOURCE2}
+cp %{SOURCE3} buildinfo
 
 %build
-export GOPATH=$(pwd):%{gopath}
+#export GOPATH=$(pwd):%{gopath}
 
 mkdir -p src/istio.io
 ln -s ../../ src/istio.io/istio
