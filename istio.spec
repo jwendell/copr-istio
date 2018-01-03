@@ -31,7 +31,7 @@
 
 # this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
 %global git_bump         1
-%global git_commit       87aa56e286b544c2380390ac77b2bd4a891a5752
+%global git_commit       5b51f4345288392f3387652ddb45f1132b1f962d
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
@@ -59,7 +59,7 @@ Source3:        buildinfo
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
-BuildRequires:  %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
+BuildRequires:  golang >= 1.9
 
 BuildRequires: git
 BuildRequires: hostname
@@ -623,13 +623,12 @@ tar xfj %{SOURCE2}
 cp %{SOURCE3} buildinfo
 
 %build
-#export GOPATH=$(pwd):%{gopath}
 
 mkdir -p src/istio.io
 ln -s ../../ src/istio.io/istio
 pushd src/istio.io/istio
 
-make go-build
+make
 
 popd
 
