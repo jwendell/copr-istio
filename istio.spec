@@ -31,7 +31,7 @@
 
 # this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
 %global git_bump         1
-%global git_commit       5b51f4345288392f3387652ddb45f1132b1f962d
+%global git_commit       d8a09e015c2824da01b38e74f6b75074475c9a34
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
@@ -83,6 +83,8 @@ all without requiring changes to the microservice code.
 
 This package contains the pilot-discovery program.
 
+pilot-discovery is the main pilot component and belongs to Control Plane.
+
 ########### pilot-agent ###############
 %package pilot-agent
 Summary:  The istio pilot agent
@@ -95,6 +97,9 @@ microservices, enforcing access policies, and aggregating telemetry data,
 all without requiring changes to the microservice code.
 
 This package contains the pilot-agent program.
+
+pilot-agent is agent that talks to Istio pilot. It belongs to Data Plane.
+Along with Envoy, makes up the proxy that goes in the sidecar along with applications.
 
 ########### istioctl ###############
 %package istioctl
@@ -109,6 +114,8 @@ all without requiring changes to the microservice code.
 
 This package contains the istioctl program.
 
+istioctl is the configuration command line utility.
+
 ########### sidecar-initializer ###############
 %package sidecar-initializer
 Summary:  The istio sidecar initializer
@@ -121,6 +128,9 @@ microservices, enforcing access policies, and aggregating telemetry data,
 all without requiring changes to the microservice code.
 
 This package contains the sidecar-initializer program.
+
+sidecar-initializer is the Kubernetes initializer for Istio sidecar.
+It belongs to Control Plane.
 
 ########### mixs ###############
 %package mixs
@@ -135,7 +145,9 @@ all without requiring changes to the microservice code.
 
 This package contains the mixs program.
 
-########### mixs ###############
+mixs is the main mixer (server) component. Belongs to Control Plane.
+
+########### mixc ###############
 %package mixc
 Summary:  The istio mixc
 Requires: istio = %{version}-%{release}
@@ -147,6 +159,38 @@ microservices, enforcing access policies, and aggregating telemetry data,
 all without requiring changes to the microservice code.
 
 This package contains the mixc program.
+
+mixc is a debug/development CLI tool to interact with Mixer API.
+
+########### node-agent ###############
+%package node-agent
+Summary:  The istio node agent
+Requires: istio = %{version}-%{release}
+
+%description node-agent
+Istio is an open platform that provides a uniform way to connect, manage
+and secure microservices. Istio supports managing traffic flows between
+microservices, enforcing access policies, and aggregating telemetry data,
+all without requiring changes to the microservice code.
+
+This package contains the node_agent program.
+
+node-agent is ...
+
+########### node-agent ###############
+%package ca
+Summary:  The istio CA
+Requires: istio = %{version}-%{release}
+
+%description ca
+Istio is an open platform that provides a uniform way to connect, manage
+and secure microservices. Istio supports managing traffic flows between
+microservices, enforcing access policies, and aggregating telemetry data,
+all without requiring changes to the microservice code.
+
+This package contains the istio_ca program.
+
+istio-ca is ...
 
 %if 0%{?with_devel}
 %package devel
@@ -636,7 +680,7 @@ popd
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-cp -pav bin/{pilot-discovery,pilot-agent,istioctl,sidecar-initializer,mixs,mixc} $RPM_BUILD_ROOT%{_bindir}/
+cp -pav bin/{pilot-discovery,pilot-agent,istioctl,sidecar-initializer,mixs,mixc,node_agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
 
 # source codes for building projects
 %if 0%{?with_devel}
@@ -807,6 +851,12 @@ export GOPATH=%{buildroot}/%{gopath}:%{gopath}
 
 %files mixc
 %{_bindir}/mixc
+
+%files node-agent
+%{_bindir}/node_agent
+
+%files ca
+%{_bindir}/istio_ca
 
 %if 0%{?with_devel}
 %files devel -f devel.file-list
