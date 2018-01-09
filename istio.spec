@@ -31,7 +31,7 @@
 
 # this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
 %global git_bump         1
-%global git_commit       d8a09e015c2824da01b38e74f6b75074475c9a34
+%global git_commit       e480d49d27598e2ec4e0cf28f7a43e00173ebd67
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
@@ -55,6 +55,7 @@ Source0:        https://%{provider_prefix}/archive/%{git_commit}/%{repo}-%{git_c
 Source1:        istiorc
 Source2:        vendor.tar.bz2
 Source3:        buildinfo
+Patch0:         no-depend.patch
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
@@ -660,7 +661,9 @@ providing packages with %{import_path} prefix.
 %endif
 
 %prep
-%autosetup -n %{name}-%{git_commit}
+%setup -q -n %{name}-%{git_commit}
+
+%patch0 -p1
 
 cp %{SOURCE1} .istiorc
 tar xfj %{SOURCE2}
@@ -672,7 +675,8 @@ mkdir -p src/istio.io
 ln -s ../../ src/istio.io/istio
 pushd src/istio.io/istio
 
-make
+export GOPATH=$(pwd):%{gopath}
+make go-build
 
 popd
 
