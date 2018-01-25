@@ -30,14 +30,18 @@
 %endif
 
 # this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
-%global git_bump         1
-%global git_commit       e480d49d27598e2ec4e0cf28f7a43e00173ebd67
+%global git_bump         0
+
+# This is the commit-vendor branch in jwendell's fork
+%global git_commit       d982952525e3cad2577e150e6730a35a90b5f958
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
 %global provider_tld    com
-%global project         istio
+# TODO: point to official project: istio
+%global project         jwendell
 %global repo            istio
+
 # https://github.com/istio/istio
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     istio.io/istio
@@ -45,7 +49,7 @@
 %define _disable_source_fetch 0
 
 Name:           istio
-Version:        0.4.%{git_bump}.git.%{git_shortcommit}
+Version:        0.5.%{git_bump}.git.%{git_shortcommit}
 Release:        1%{?dist}
 Summary:        An open platform to connect, manage, and secure microservices
 License:        ASL 2.0
@@ -53,9 +57,7 @@ URL:            https://%{provider_prefix}
 # TODO: Change to a release version
 Source0:        https://%{provider_prefix}/archive/%{git_commit}/%{repo}-%{git_commit}.zip
 Source1:        istiorc
-Source2:        vendor.tar.bz2
-Source3:        buildinfo
-Patch0:         no-depend.patch
+Source2:        buildinfo
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
@@ -663,11 +665,8 @@ providing packages with %{import_path} prefix.
 %prep
 %setup -q -n %{name}-%{git_commit}
 
-%patch0 -p1
-
-cp %{SOURCE1} .istiorc
-tar xfj %{SOURCE2}
-cp %{SOURCE3} buildinfo
+cp %{SOURCE1} .istiorc.mk
+cp %{SOURCE2} buildinfo
 
 %build
 
