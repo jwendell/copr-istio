@@ -13,7 +13,7 @@
 %global git_bump         0
 
 # This is the commit-vendor branch in jwendell's fork
-%global git_commit       d982952525e3cad2577e150e6730a35a90b5f958
+%global git_commit       f9ef67a4702207df7f45ba94288114be07a4d675
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
@@ -99,20 +99,20 @@ This package contains the istioctl program.
 
 istioctl is the configuration command line utility.
 
-########### sidecar-initializer ###############
-%package sidecar-initializer
-Summary:  The istio sidecar initializer
+########### sidecar-injector ###############
+%package sidecar-injector
+Summary:  The istio sidecar injector
 Requires: istio = %{version}-%{release}
 
-%description sidecar-initializer
+%description sidecar-injector
 Istio is an open platform that provides a uniform way to connect, manage
 and secure microservices. Istio supports managing traffic flows between
 microservices, enforcing access policies, and aggregating telemetry data,
 all without requiring changes to the microservice code.
 
-This package contains the sidecar-initializer program.
+This package contains the sidecar-injector program.
 
-sidecar-initializer is the Kubernetes initializer for Istio sidecar.
+sidecar-injector is the Kubernetes injector for Istio sidecar.
 It belongs to Control Plane.
 
 ########### mixs ###############
@@ -377,7 +377,7 @@ popd
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-cp -pav bin/{pilot-discovery,pilot-agent,istioctl,sidecar-initializer,mixs,mixc,node_agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
+cp -pav bin/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node_agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
 
 # source codes for building projects
 %if 0%{?with_devel}
@@ -417,8 +417,8 @@ sort -u -o devel.file-list devel.file-list
 %files istioctl
 %{_bindir}/istioctl
 
-%files sidecar-initializer
-%{_bindir}/sidecar-initializer
+%files sidecar-injector
+%{_bindir}/sidecar-injector
 
 %files mixs
 %{_bindir}/mixs
