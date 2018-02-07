@@ -30,7 +30,7 @@
 
 Name:           istio
 Version:        0.6.%{git_bump}.git.%{git_shortcommit}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        An open platform to connect, manage, and secure microservices
 License:        ASL 2.0
 URL:            https://%{provider_prefix}
@@ -440,5 +440,8 @@ sort -u -o devel.file-list devel.file-list
 %endif
 
 %changelog
+* Wed Feb 07 2018 Jonh Wendell <jonh.wendell@redhat.com> 0.6.0.git.14ee2b8-2
+- new package built with tito
+
 * Thu Dec 21 2017 Jonh Wendell <jonh.wendell@redhat.com> - 0.4.git22a8d0c
 - First package for Fedora
