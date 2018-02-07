@@ -13,7 +13,7 @@
 %global git_bump         0
 
 # This is the commit-vendor branch in jwendell's fork
-%global git_commit       f9ef67a4702207df7f45ba94288114be07a4d675
+%global git_commit       14ee2b8041116235aef90583bd5bbea5c2fa20cf
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
@@ -29,7 +29,7 @@
 %define _disable_source_fetch 0
 
 Name:           istio
-Version:        0.5.%{git_bump}.git.%{git_shortcommit}
+Version:        0.6.%{git_bump}.git.%{git_shortcommit}
 Release:        1%{?dist}
 Summary:        An open platform to connect, manage, and secure microservices
 License:        ASL 2.0
@@ -369,7 +369,7 @@ ln -s ../../ src/istio.io/istio
 pushd src/istio.io/istio
 
 export GOPATH=$(pwd):%{gopath}
-make go-build
+make build
 
 popd
 
@@ -377,7 +377,7 @@ popd
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-cp -pav bin/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node_agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
+cp -pav out/linux_amd64/release/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node_agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
 
 # source codes for building projects
 %if 0%{?with_devel}
