@@ -10,10 +10,9 @@
 %endif
 
 # this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
-%global git_bump         1
+%global git_bump         2
 
-# This is the vendor-sub branch
-%global git_commit       946fe2d47ea68eef63951d7c8094390cc554b3c7
+%global git_commit       ded0ab85252ce18a82aaae6bcf4d8d0c4fb961f6
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
@@ -24,11 +23,10 @@
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     istio.io/istio
 
-%global vendor_project  istio-releases
-%global vendor_repo     vendor
-# https://github.com/istio-releases/vendor
-%global vendor_prefix %{provider}.%{provider_tld}/%{vendor_project}/%{vendor_repo}
-%global vendor_git_commit 8679817e9bc25e3e807a583e92a966e2df66da6f
+%global vendor_repo     vendor-istio
+# https://github.com/istio/vendor-istio
+%global vendor_prefix %{provider}.%{provider_tld}/%{project}/%{vendor_repo}
+%global vendor_git_commit fb639206a2dc713f941a17d871ac7c2fadc59856
 
 %define _disable_source_fetch 0
 
@@ -38,11 +36,11 @@ Release:        1%{?dist}
 Summary:        An open platform to connect, manage, and secure microservices
 License:        ASL 2.0
 URL:            https://%{provider_prefix}
-# TODO: Change to a release version
-Source0:        https://%{provider_prefix}/archive/%{git_commit}/%{repo}-%{git_commit}.zip
-Source1:        istiorc
-Source2:        buildinfo
-Source3:        https://%{vendor_prefix}/archive/%{vendor_git_commit}/%{vendor_repo}-%{vendor_git_commit}.tar.gz
+
+Source0:        https://%{provider_prefix}/archive/%{git_commit}/%{repo}-%{git_commit}.tar.gz
+Source1:        https://%{vendor_prefix}/archive/%{vendor_git_commit}/%{vendor_repo}-%{vendor_git_commit}.tar.gz
+Source2:        istiorc
+Source3:        buildinfo
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
@@ -361,11 +359,11 @@ building other packages which use import path with
 %prep
 %setup -q -n %{name}-%{git_commit}
 
-cp %{SOURCE1} .istiorc.mk
-cp %{SOURCE2} buildinfo
-
 mkdir -p vendor
-tar zxf %{SOURCE3} -C vendor --strip=1
+tar zxf %{SOURCE1} -C vendor --strip=1
+
+cp %{SOURCE2} .istiorc.mk
+cp %{SOURCE3} buildinfo
 
 %build
 
@@ -374,7 +372,7 @@ ln -s ../../ src/istio.io/istio
 pushd src/istio.io/istio
 
 export GOPATH=$(pwd):%{gopath}
-make pilot-discovery pilot-agent istioctl sidecar-injector mixc mixs $(pwd)/out/linux_amd64/release/node_agent $(pwd)/out/linux_amd64/release/istio_ca
+make pilot-discovery pilot-agent istioctl sidecar-injector mixc mixs node-agent istio-ca
 
 popd
 
@@ -382,7 +380,7 @@ popd
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-cp -pav out/linux_amd64/release/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node_agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
+cp -pav out/linux_amd64/release/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node-agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
 
 # source codes for building projects
 %if 0%{?with_devel}
@@ -432,7 +430,7 @@ sort -u -o devel.file-list devel.file-list
 %{_bindir}/mixc
 
 %files node-agent
-%{_bindir}/node_agent
+%{_bindir}/node-agent
 
 %files ca
 %{_bindir}/istio_ca
