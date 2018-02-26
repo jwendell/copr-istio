@@ -9,30 +9,28 @@
 %global debug_package   %{nil}
 %endif
 
-# this is just a monotonically increasing number to preceed the git hash, to get incremented on every git bump
-%global git_bump         2
-
-%global git_commit       ded0ab85252ce18a82aaae6bcf4d8d0c4fb961f6
+%global git_commit dd62fc7c4471d3fec5c2491d9a21bce367be2c30
 %global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
 
 %global provider        github
 %global provider_tld    com
-%global project         istio
+%global project         openshift-istio
 %global repo            istio
-# https://github.com/istio/istio
+# https://github.com/openshift-istio/istio
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     istio.io/istio
 
 %global vendor_repo     vendor-istio
-# https://github.com/istio/vendor-istio
+# https://github.com/openshift-istio/vendor-istio
 %global vendor_prefix %{provider}.%{provider_tld}/%{project}/%{vendor_repo}
-%global vendor_git_commit fb639206a2dc713f941a17d871ac7c2fadc59856
+%global vendor_git_commit 837877221948fdceabc351a4af62bc88ef398779
 
-%define _disable_source_fetch 0
+%global build_date 20180226
+%global snapshot_info %{build_date}git%{git_shortcommit}
 
 Name:           istio
-Version:        0.6.%{git_bump}.git.%{git_shortcommit}
-Release:        1%{?dist}
+Version:        0.7.0
+Release:        0.1.0.git.0.%{git_shortcommit}%{?dist}
 Summary:        An open platform to connect, manage, and secure microservices
 License:        ASL 2.0
 URL:            https://%{provider_prefix}
@@ -160,9 +158,9 @@ This package contains the node_agent program.
 
 node-agent is ...
 
-########### node-agent ###############
+########### ca ###############
 %package ca
-Summary:  The istio CA
+Summary:  Istio Certificate Authority (CA)
 Requires: istio = %{version}-%{release}
 
 %description ca
@@ -174,6 +172,21 @@ all without requiring changes to the microservice code.
 This package contains the istio_ca program.
 
 istio-ca is ...
+
+########### multicluster-ca ###############
+%package multicluster-ca
+Summary:  Istio Multicluster Certificate Authority (CA)
+Requires: istio = %{version}-%{release}
+
+%description multicluster-ca
+Istio is an open platform that provides a uniform way to connect, manage
+and secure microservices. Istio supports managing traffic flows between
+microservices, enforcing access policies, and aggregating telemetry data,
+all without requiring changes to the microservice code.
+
+This package contains the multicluster_ca program.
+
+multicluster-ca is ...
 
 %if 0%{?with_devel}
 %package devel
@@ -372,7 +385,7 @@ ln -s ../../ src/istio.io/istio
 pushd src/istio.io/istio
 
 export GOPATH=$(pwd):%{gopath}
-make pilot-discovery pilot-agent istioctl sidecar-injector mixc mixs node-agent istio-ca
+make pilot-discovery pilot-agent istioctl sidecar-injector mixc mixs node-agent istio-ca multicluster_ca
 
 popd
 
@@ -380,7 +393,7 @@ popd
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-cp -pav out/linux_amd64/release/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node-agent,istio_ca} $RPM_BUILD_ROOT%{_bindir}/
+cp -pav out/linux_amd64/release/{pilot-discovery,pilot-agent,istioctl,sidecar-injector,mixs,mixc,node-agent,istio_ca,multicluster_ca} $RPM_BUILD_ROOT%{_bindir}/
 
 # source codes for building projects
 %if 0%{?with_devel}
@@ -434,6 +447,9 @@ sort -u -o devel.file-list devel.file-list
 
 %files ca
 %{_bindir}/istio_ca
+
+%files multicluster-ca
+%{_bindir}/multicluster_ca
 
 %if 0%{?with_devel}
 %files devel -f devel.file-list
